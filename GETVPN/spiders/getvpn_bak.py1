@@ -1,0 +1,25 @@
+# -*- coding: utf-8 -*-
+import scrapy
+
+from GETVPN.items import GetvpnItem
+
+class GetvpnSpider(scrapy.Spider):
+    name = "getvpn"
+    allowed_domains = ["vpngate.com"]
+    start_urls = ['http://www.vpngate.net/cn/']
+
+    def parse(self, response):
+        items = []
+        for href in response.xpath("//td//@href").extract():
+            if str(href).startswith('do_openvpn'):
+                info = href[href.find("ip="):href.find("&sid")]
+                info = str(info).split("&")
+                pre_item = GetvpnItem()
+                pre_item['ip'] = []
+                pre_item['ip'].append(info[0][3:])
+                pre_item['tcp'] = []
+                pre_item['tcp'].append(info[1][4:])
+                pre_item['udp'] = []
+                pre_item['udp'].append(info[2][4:])
+                items.append('pre_item')
+        yield items
